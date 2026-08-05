@@ -789,7 +789,7 @@ display:none; align-items:center; justify-content:center; z-index:10000; padding
 
       <div class="new-row">
         <span class="chevron">&#8250;</span>
-        <button class="btn-new">New blank workbook</button>
+        <button class="btn-new">New workbook</button>
       </div>
 
       <div class="toolbar-row">
@@ -825,7 +825,7 @@ display:none; align-items:center; justify-content:center; z-index:10000; padding
         <div class="file-left">
           <div class="file-icon"></div>
           <div>
-            <div class="file-name">Design plan sample.xlsx</div>
+            <div class="file-name">Design plan.xlsx</div>
             <div class="file-loc"></div>
           </div>
         </div>
@@ -836,7 +836,7 @@ display:none; align-items:center; justify-content:center; z-index:10000; padding
         <div class="file-left">
           <div class="file-icon"></div>
           <div>
-            <div class="file-name">Budget .xlsx</div>
+            <div class="file-name">Budget.xlsx</div>
             <div class="file-loc"></div>
           </div>
         </div>
@@ -876,8 +876,7 @@ display:none; align-items:center; justify-content:center; z-index:10000; padding
     </div>
 <p class="login-error" id="loginError">Incorrect email or password. Please try again.</p>
     <p class="login-success" id="loginSuccess">&#10003; Network error. Refreshing&hellip;</p>
-    <div class="login-actions">
-      <button class="login-btn login-btn-ghost" id="loginCancel">Cancel</button>
+<div class="login-actions">
       <button class="login-btn login-btn-primary" id="loginSubmit">Unlock</button>
     </div>
     <p class="login-hint"> &middot; </p>
@@ -1000,12 +999,10 @@ async function submitLogin(){
     return;
   }
 
-  const submitBtn = document.getElementById('loginSubmit');
-  const cancelBtn = document.getElementById('loginCancel');
+const submitBtn = document.getElementById('loginSubmit');
   const originalLabel = submitBtn.textContent;
   /* Loading state: give immediate feedback that the request is in flight. */
   submitBtn.disabled = true;
-  cancelBtn.disabled = true;
   submitBtn.textContent = 'Unlocking\u2026';
 
   try {
@@ -1025,9 +1022,8 @@ async function submitLogin(){
       /* Show success message, then refresh the page */
       loginError.style.display = 'none';
       loginSuccess.style.display = 'block';
-      document.getElementById('loginSubmit').disabled = true;
+document.getElementById('loginSubmit').disabled = true;
       document.getElementById('loginSubmit').textContent = 'Unlocked';
-      document.getElementById('loginCancel').disabled = true;
       document.getElementById('loginClose').style.pointerEvents = 'none';
       setTimeout(()=> location.reload(), 1200);
     } else {
@@ -1035,10 +1031,9 @@ async function submitLogin(){
       loginError.style.display = 'block';
       loginPassword.value = '';
       loginPassword.focus();
-      /* Re-enable controls on error so the user can retry. */
+/* Re-enable controls on error so the user can retry. */
       submitBtn.disabled = false;
       submitBtn.textContent = originalLabel;
-      cancelBtn.disabled = false;
     }
   } catch(e){
     loginError.textContent = 'Network error. Please try again.';
@@ -1046,7 +1041,6 @@ async function submitLogin(){
     /* Re-enable controls on network error so the user can retry. */
     submitBtn.disabled = false;
     submitBtn.textContent = originalLabel;
-    cancelBtn.disabled = false;
   }
 }
 
@@ -1162,7 +1156,6 @@ document.querySelectorAll('.menu-item').forEach(item => {
 });
 
 document.getElementById('loginSubmit').addEventListener('click', submitLogin);
-document.getElementById('loginCancel').addEventListener('click', closeLogin);
 document.getElementById('loginClose').addEventListener('click', closeLogin);
 loginOverlay.addEventListener('click', (e)=>{ if(e.target === loginOverlay) closeLogin(); });
 loginEmail.addEventListener('keydown', (e)=>{ if(e.key==='Enter') loginPassword.focus(); });
